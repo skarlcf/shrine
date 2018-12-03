@@ -119,6 +119,18 @@ describe Shrine::Plugins::Backgrounding do
     end
   end
 
+  # This test copied from ordinary attacher_test to demonstrate that backgrounding
+  # breaks usages of `promote` that would otherwise work.
+  # https://github.com/shrinerb/shrine/blob/master/test/attacher_test.rb#L158-L163
+  describe "manual call to #promote" do
+    it "uploads the cached file to store as usual" do
+      @attacher.assign(fakeio)
+      @attacher.promote(@attacher.get)
+      assert_equal "store", @attacher.get.storage_key
+      assert @attacher.get.exists?
+    end
+  end
+
   describe "deleting" do
     it "is triggered on destroy" do
       @attacher.class.delete { |data| @f = Fiber.new{self.class.delete(data)} }
